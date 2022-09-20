@@ -33,6 +33,7 @@ public class CoupaApiClient
         await EnsureOAuthTokenAsync(cancellationToken);
 
         var request = new HttpRequestMessage(HttpMethod.Get, $"api/invoices/{invoiceId}");
+        request.Headers.Remove("Accept");
         request.Headers.TryAddWithoutValidation("Accept", "application/json");
 
         var response = await _client.SendAsync(request, cancellationToken);
