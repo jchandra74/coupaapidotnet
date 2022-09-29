@@ -11,7 +11,7 @@ var connectionSetting = new CoupaConnectionSetting(
     "replace_with_your_coupa_instance_hostname",                                                            //eg. awesomecompany-test.coupahost.com
     "replace_with_your_registered_oauth_client_Identifier",                                                 //example of how to find these values can be found in https://success.coupa.com/Integrate/KB/OAuth_2.0_Getting_Started_with_Coupa_API
     "replace_with_your_registered_oauth_client_Secret",                                                     //example of how to find these values can be found in https://success.coupa.com/Integrate/KB/OAuth_2.0_Getting_Started_with_Coupa_API
-    "core.accounting.read core.comment.read core.invoice.create core.invoice.read email login openid"       //Example scopes/claims required for your application, adjust as needed.
+    "core.accounting.read core.common.read core.invoice.create core.invoice.read email login openid"       //Example scopes/claims required for your application, adjust as needed.
 );
 
 var cts = new CancellationTokenSource();
