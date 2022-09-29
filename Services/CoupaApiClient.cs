@@ -30,30 +30,30 @@ public class CoupaApiClient
     {
         _ = invoiceId > 0 ? 0 : throw new ArgumentOutOfRangeException(nameof(invoiceId));
 
-        await EnsureOAuthTokenAsync(cancellationToken);
+        await EnsureOAuthTokenAsync(cancellationToken).ConfigureAwait(false);
 
         var request = new HttpRequestMessage(HttpMethod.Get, $"api/invoices/{invoiceId}");
         request.Headers.Remove("Accept");
         request.Headers.TryAddWithoutValidation("Accept", "application/json");
 
-        var response = await _client.SendAsync(request, cancellationToken);
+        var response = await _client.SendAsync(request, cancellationToken).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
 
-        return await response.Content.ReadAsStringAsync(cancellationToken);
+        return await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
     }
 
     public async Task<string> GetInboundInvoicesJson(CancellationToken cancellationToken = default)
     {
-        await EnsureOAuthTokenAsync(cancellationToken);
+        await EnsureOAuthTokenAsync(cancellationToken).ConfigureAwait(false);
 
         var request = new HttpRequestMessage(HttpMethod.Get, "api/inbound_invoices");
         request.Headers.Remove("Accept");
         request.Headers.TryAddWithoutValidation("Accept", "application/json");
 
-        var response = await _client.SendAsync(request, cancellationToken);
+        var response = await _client.SendAsync(request, cancellationToken).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
         
-        return await response.Content.ReadAsStringAsync(cancellationToken);
+        return await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
     }
 
     private async Task EnsureOAuthTokenAsync(CancellationToken cancellationToken)
@@ -61,24 +61,24 @@ public class CoupaApiClient
         OAuthToken token;
         bool tokenRetrieved;
 
-        (tokenRetrieved, token) = await TryFetchOAuthTokenFromStore(cancellationToken);
+        (tokenRetrieved, token) = await TryFetchOAuthTokenFromStore(cancellationToken).ConfigureAwait(false);
         if (tokenRetrieved)
         {
             _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token.access_token);
             return;
         }
 
-        (tokenRetrieved, token) = await TryFetchOAuthTokenFromCoupaInstance(cancellationToken);
+        (tokenRetrieved, token) = await TryFetchOAuthTokenFromCoupaInstance(cancellationToken).ConfigureAwait(false);
         if (tokenRetrieved)
         {
-            await _store.PutTokenAsync(_setting.HostName, token, _accessTokenExpiryOverride ?? token.expires_in);
+            await _store.PutTokenAsync(_setting.HostName, token, _accessTokenExpiryOverride ?? token.expires_in).ConfigureAwait(false);
             _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token.access_token);
         }
     }
 
     private async Task<(bool tokenRetrieved, OAuthToken token)> TryFetchOAuthTokenFromStore(CancellationToken cancellationToken)
     {
-        var token = await _store.GetTokenAsync(_setting.HostName, cancellationToken);
+        var token = await _store.GetTokenAsync(_setting.HostName, cancellationToken).ConfigureAwait(false);
         return (token != default, token ?? OAuthToken.Null);
     }
 
@@ -94,9 +94,9 @@ public class CoupaApiClient
 
         try
         {
-            var response = await _client.SendAsync(request);
+            var response = await _client.SendAsync(request, cancellationToken).ConfigureAwait(false);
             response.EnsureSuccessStatusCode();
-            var raw = await response.Content.ReadAsStringAsync();
+            var raw = await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
             var token = JsonSerializer.Deserialize<OAuthToken>(raw);
             if (token == default)
                 throw new Exception("Unable to retrieve a Coupa Access Token.");
